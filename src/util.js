@@ -28,12 +28,4 @@ function getRandomPositiveInteger (a, b) {
   return Math.floor(result);
 }
 
-// function isTaskExpired(dueDate) {
-//   return dueDate && dayjs().isAfter(dueDate, 'D');
-// }
-
-// function isTaskRepeating(repeating) {
-//   return Object.values(repeating).some(Boolean);
-// }
-
 export {getRandomArrayElement, humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, getRandomPositiveInteger};

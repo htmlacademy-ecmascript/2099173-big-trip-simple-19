@@ -1,87 +1,87 @@
 import { getRandomArrayElement} from '../util.js';
-import { mockOffers } from './offers.js';
+import { MOCK_OFFERS } from './offers.js';
 
-const mockOffersByType = [
+const MOCK_OFFERS_BY_TYPE = [
   {
     'type': 'taxi',
     'offers': [
-      mockOffers[0],
-      mockOffers[2],
-      mockOffers[9],
-      mockOffers[11],
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[2],
+      MOCK_OFFERS[9],
+      MOCK_OFFERS[11],
     ]
   },
   {
     'type': 'bus',
     'offers': [
-      mockOffers[0],
-      mockOffers[1],
-      mockOffers[2],
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[1],
+      MOCK_OFFERS[2],
     ]
   },
   {
     'type': 'train',
     'offers': [
-      mockOffers[0],
-      mockOffers[1],
-      mockOffers[2],
-      mockOffers[3],
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[1],
+      MOCK_OFFERS[2],
+      MOCK_OFFERS[3],
     ]
   },
   {
     'type': 'ship',
     'offers': [
-      mockOffers[0],
-      mockOffers[1],
-      mockOffers[2],
-      mockOffers[7]
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[1],
+      MOCK_OFFERS[2],
+      MOCK_OFFERS[7]
     ]
   },
   {
     'type':'drive',
     'offers': [
-      mockOffers[0],
-      mockOffers[11],
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[11],
     ]
   },
   {
     'type': 'flight',
     'offers': [
-      mockOffers[0],
-      mockOffers[1],
-      mockOffers[2],
-      mockOffers[3],
-      mockOffers[5],
+      MOCK_OFFERS[0],
+      MOCK_OFFERS[1],
+      MOCK_OFFERS[2],
+      MOCK_OFFERS[3],
+      MOCK_OFFERS[5],
     ]
   },
   {
     'type': 'check-in',
     'offers': [
-      mockOffers[9],
+      MOCK_OFFERS[9],
     ]
   },
   {
     'type': 'sightseeing',
     'offers': [
-      mockOffers[3],
-      mockOffers[4],
-      mockOffers[6],
-      mockOffers[7],
-      mockOffers[9],
-      mockOffers[10],
+      MOCK_OFFERS[3],
+      MOCK_OFFERS[4],
+      MOCK_OFFERS[6],
+      MOCK_OFFERS[7],
+      MOCK_OFFERS[9],
+      MOCK_OFFERS[10],
     ]
   },
   {
     'type': 'restaurant',
     'offers': [
-      mockOffers[8]
+      MOCK_OFFERS[8]
     ]
   }
 ];
 
 function getRandomOffersByType() {
-  return getRandomArrayElement(mockOffersByType);
+  return getRandomArrayElement(MOCK_OFFERS_BY_TYPE);
 }
 
 export {getRandomOffersByType};
-export {mockOffersByType};
+export {MOCK_OFFERS_BY_TYPE};

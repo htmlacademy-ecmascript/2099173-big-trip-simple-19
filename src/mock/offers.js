@@ -1,4 +1,4 @@
-const mockOffers = [
+const MOCK_OFFERS = [
   {
     'id': 0,
     'title': 'Upgrade to a business class',
@@ -61,4 +61,4 @@ const mockOffers = [
   },
 ];
 
-export {mockOffers};
+export {MOCK_OFFERS};

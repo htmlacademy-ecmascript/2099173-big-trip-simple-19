@@ -1,16 +1,16 @@
 import { createElement } from '../render.js';
-import { mockDestinations } from '../mock/destination.js';
-import { mockOffers } from '../mock/offers.js';
+import { MOCK_DESTINATIONS } from '../mock/destination.js';
+import { MOCK_OFFERS } from '../mock/offers.js';
 import { humanizeDateInList } from '../util.js';
 import { humanizeTimeInList } from '../util.js';
 
 function createDestinationNameTemplate (currentDestination) {
-  return mockDestinations.map((mockDestination) => currentDestination === mockDestination.id ? mockDestination.name : '').join('');
+  return MOCK_DESTINATIONS.map((mockDestination) => currentDestination === mockDestination.id ? mockDestination.name : '').join('');
 }
 
 function createPointOffersTemplate(certainPointOffers) {
 
-  return mockOffers.map((offer) => certainPointOffers.includes(offer.id) ? `<li class="event__offer">
+  return MOCK_OFFERS.map((offer) => certainPointOffers.includes(offer.id) ? `<li class="event__offer">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;
   <span class="event__offer-price">${offer.price}</span>                   
@@ -56,23 +56,26 @@ function createPointTemplate(point) {
 }
 
 export default class PointView {
+  #element = null;
+  #point = null;
+
   constructor ({point}) {
-    this.point = point;
+    this.#point = point;
   }
 
-  getTemplate() {
-    return createPointTemplate(this.point);
+  get template() {
+    return createPointTemplate(this.#point);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
 
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
