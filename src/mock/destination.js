@@ -1,4 +1,4 @@
-const mockDestinations = [
+const MOCK_DESTINATIONS = [
   {
     'id': 1,
     'description': 'Chamonix, is a beautiful city, a true asian pearl, with crowded streets.',
@@ -56,4 +56,4 @@ const mockDestinations = [
   }
 ];
 
-export {mockDestinations};
+export {MOCK_DESTINATIONS};

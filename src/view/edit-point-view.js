@@ -1,8 +1,8 @@
 import { createElement } from '../render.js';
 import { TYPES } from '../const.js';
-import { mockDestinations } from '../mock/destination.js';
+import { MOCK_DESTINATIONS } from '../mock/destination.js';
 import { humanizeDateAndTimeInForm } from '../util.js';
-import { mockOffersByType } from '../mock/offers-by-type.js';
+import { MOCK_OFFERS_BY_TYPE } from '../mock/offers-by-type.js';
 
 function createCheckedTypeTemplate(currentType) {
   return `${
@@ -18,12 +18,12 @@ function createDestinationListTemplate (destinations) {
 }
 
 function createDestinationNameTemplate (currentDestination) {
-  return mockDestinations.map((mockDestination) => currentDestination === mockDestination.id ? mockDestination.name : '').join('');
+  return MOCK_DESTINATIONS.map(({name, id}) => currentDestination === id ? name : '').join('');
 }
 
 function createOffersInFormTemplate(checkingOffers, currentType) {
 
-  const pointTypeOffers = mockOffersByType.find((offer) => offer.type === currentType);
+  const pointTypeOffers = MOCK_OFFERS_BY_TYPE.find((offer) => offer.type === currentType);
 
   return pointTypeOffers.offers.map((offer) => {
 
@@ -73,7 +73,7 @@ function createEditPointFormTemplate(point) {
       <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${createDestinationNameTemplate(destination)}" list="destination-list-1">
       <datalist id="destination-list-1">
 
-        ${createDestinationListTemplate(mockDestinations)}
+        ${createDestinationListTemplate(MOCK_DESTINATIONS)}
 
       </datalist>
     </div>
@@ -121,23 +121,26 @@ function createEditPointFormTemplate(point) {
 
 export default class EditPointFormView {
 
+  #point = null;
+  #element = null;
+
   constructor ({point}) {
-    this.point = point;
+    this.#point = point;
   }
 
-  getTemplate() {
-    return createEditPointFormTemplate(this.point);
+  get template() {
+    return createEditPointFormTemplate(this.#point);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
 
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
