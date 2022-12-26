@@ -1,14 +1,10 @@
 import PointListView from '../view/point-list-view.js';
 import PointItemView from '../view/point-item-view.js';
 import SortView from '../view/sort-view.js';
-// import AddNewPointFormView from '../view/add-new-point-view.js';
 import EditPointFormView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 import {render} from '../render.js';
-// import { BLANK_POINT } from '../view/add-new-point-view.js';
 import NoPointView from '../view/no-point-view.js';
-
-const POINT_COUNT_PER_STEP = 8;
 
 export default class PointsListPresenter {
 
@@ -26,8 +22,6 @@ export default class PointsListPresenter {
   }
 
   init() {
-    // render(new EditPointFormView({point: this.#boardPoints[0]}), this.#pointItemComponent.element);
-    // render(new AddNewPointFormView({point: BLANK_POINT}), this.#pointItemComponent.element);
     if (this.#pointsModel.points === null) {
       render(new NoPointView(), this.#pointListContainer);
     } else {
@@ -36,9 +30,9 @@ export default class PointsListPresenter {
       render(new SortView(), this.#pointListContainer);
       render(this.#pointListComponent, this.#pointListContainer);
 
-      for (let i = 0; i < Math.min(this.#boardPoints.length, POINT_COUNT_PER_STEP); i++) {
-        this.#renderPoint(this.#boardPoints[i]);
-      }
+      this.#boardPoints.forEach((boardPoint) => {
+        this.#renderPoint(boardPoint);
+      });
     }
   }
 
