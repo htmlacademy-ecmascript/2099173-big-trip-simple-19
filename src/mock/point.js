@@ -4,8 +4,8 @@ import { getRandomPositiveInteger } from '../util.js';
 import {TYPES} from '../const.js';
 import { MOCK_OFFERS } from './offers.js';
 
-function getRandomOffers (mockOffers) {
-  return mockOffers.splice(getRandomPositiveInteger(0, mockOffers.length - 1), (getRandomPositiveInteger(0, mockOffers.length)));
+function getSomeRandomArrayElements (someArray) {
+  return someArray.slice(getRandomPositiveInteger(0, someArray.length - 1), (getRandomPositiveInteger(0, someArray.length)));
 }
 
 const mockPoints = [
@@ -15,7 +15,7 @@ const mockPoints = [
     'dateTo': '2021-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 0,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[2].id,
       MOCK_OFFERS[9].id,
@@ -30,7 +30,7 @@ const mockPoints = [
     'dateTo': '2022-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 1,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
       MOCK_OFFERS[2].id,
@@ -44,7 +44,7 @@ const mockPoints = [
     'dateTo': '2023-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 2,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
       MOCK_OFFERS[2].id,
@@ -59,7 +59,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 3,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
       MOCK_OFFERS[2].id,
@@ -74,7 +74,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 4,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[11].id
     ]),
@@ -87,7 +87,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 5,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
       MOCK_OFFERS[2].id,
@@ -103,7 +103,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 6,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[9].id,
     ]),
     'type':TYPES[6]
@@ -115,7 +115,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 7,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[3].id,
       MOCK_OFFERS[4].id,
       MOCK_OFFERS[6].id,
@@ -132,7 +132,7 @@ const mockPoints = [
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
     'id': 8,
-    'offers': getRandomOffers([
+    'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[8].id
     ]),
     'type':TYPES[8]

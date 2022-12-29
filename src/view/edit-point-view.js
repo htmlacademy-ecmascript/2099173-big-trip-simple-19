@@ -21,6 +21,10 @@ function createDestinationNameTemplate (currentDestination) {
   return MOCK_DESTINATIONS.map(({name, id}) => currentDestination === id ? name : '').join('');
 }
 
+function createDestinationDescriptionTemplate (currentDestination) {
+  return MOCK_DESTINATIONS.map(({description, id}) => currentDestination === id ? description : '').join('');
+}
+
 function createOffersInFormTemplate(checkingOffers, currentType) {
 
   const pointTypeOffers = MOCK_OFFERS_BY_TYPE.find((offer) => offer.type === currentType);
@@ -113,7 +117,7 @@ function createEditPointFormTemplate(point) {
 
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${destination.description}</p>
+      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination)}</p>
     </section>
   </section>
 </form>`;

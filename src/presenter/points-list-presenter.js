@@ -1,11 +1,10 @@
 import PointListView from '../view/point-list-view.js';
 import PointItemView from '../view/point-item-view.js';
 import SortView from '../view/sort-view.js';
-// import AddNewPointFormView from '../view/add-new-point-view.js';
 import EditPointFormView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 import {render} from '../render.js';
-// import { BLANK_POINT } from '../view/add-new-point-view.js';
+import NoPointView from '../view/no-point-view.js';
 
 export default class PointsListPresenter {
 
@@ -23,16 +22,17 @@ export default class PointsListPresenter {
   }
 
   init() {
-    this.#boardPoints = [...this.#pointsModel.points];
+    if (this.#pointsModel.points === null) {
+      render(new NoPointView(), this.#pointListContainer);
+    } else {
+      this.#boardPoints = [...this.#pointsModel.points];
+      render(this.#pointItemComponent, this.#pointListComponent.element);
+      render(new SortView(), this.#pointListContainer);
+      render(this.#pointListComponent, this.#pointListContainer);
 
-    render(new SortView(), this.#pointListContainer);
-    render(this.#pointListComponent, this.#pointListContainer);
-    render(this.#pointItemComponent, this.#pointListComponent.element);
-    // render(new EditPointFormView({point: this.#boardPoints[0]}), this.#pointItemComponent.element);
-    // render(new AddNewPointFormView({point: BLANK_POINT}), this.#pointItemComponent.element);
-
-    for (let i = 0; i < this.#boardPoints.length; i++) {
-      this.#renderPoint(this.#boardPoints[i]);
+      this.#boardPoints.forEach((boardPoint) => {
+        this.#renderPoint(boardPoint);
+      });
     }
   }
 
@@ -63,6 +63,11 @@ export default class PointsListPresenter {
 
     editPointComponent.element.addEventListener('submit', (evt) => {
       evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+
+    editPointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
       replaceFormToPoint();
       document.removeEventListener('keydown', escKeyDownHandler);
     });
