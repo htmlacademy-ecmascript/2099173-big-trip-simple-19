@@ -1,9 +1,9 @@
-import { createElement } from '../render.js';
-import { TYPES } from '../const.js';
-import { getRandomArrayElement } from '../util.js';
-import { humanizeDateAndTimeInForm } from '../util.js';
-import { MOCK_DESTINATIONS } from '../mock/destination.js';
-import { MOCK_OFFERS_BY_TYPE } from '../mock/offers-by-type.js';
+import {TYPES} from '../const.js';
+import {getRandomArrayElement} from '../utils/common.js';
+import {humanizeDateAndTimeInForm} from '../utils/points.js';
+import {MOCK_DESTINATIONS} from '../mock/destination.js';
+import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const BLANK_DESTINATION = {
   'id': 0,
@@ -154,30 +154,28 @@ function createAddNewPointFormTemplate(point) {
 </form>`;
 }
 
-export default class AddNewPointFormView {
+export default class AddNewPointFormView extends AbstractView {
 
-  #element = null;
   #point = null;
+  #handleFormSubmit = null;
 
-  constructor ({point = BLANK_POINT}) {
+  constructor ({point = BLANK_POINT}, onFormSubmit) {
+    super();
+
     this.#point = point;
+    this.#handleFormSubmit = onFormSubmit;
+
+    this.element.addEventListener('submit', this.#handlerFormSubmit);
   }
 
   get template() {
     return createAddNewPointFormTemplate(this.#point);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #handlerFormSubmit = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 }
 
 export {BLANK_POINT};
