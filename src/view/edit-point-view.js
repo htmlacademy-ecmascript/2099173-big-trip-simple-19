@@ -1,8 +1,8 @@
-import { createElement } from '../render.js';
-import { TYPES } from '../const.js';
-import { MOCK_DESTINATIONS } from '../mock/destination.js';
-import { humanizeDateAndTimeInForm } from '../util.js';
-import { MOCK_OFFERS_BY_TYPE } from '../mock/offers-by-type.js';
+import {TYPES} from '../const.js';
+import {MOCK_DESTINATIONS} from '../mock/destination.js';
+import {humanizeDateAndTimeInForm} from '../utils/points.js';
+import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createCheckedTypeTemplate(currentType) {
   return `${
@@ -18,11 +18,11 @@ function createDestinationListTemplate (destinations) {
 }
 
 function createDestinationNameTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.map(({name, id}) => currentDestination === id ? name : '').join('');
+  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id).name;
 }
 
 function createDestinationDescriptionTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.map(({description, id}) => currentDestination === id ? description : '').join('');
+  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id).description;
 }
 
 function createOffersInFormTemplate(checkingOffers, currentType) {
@@ -123,28 +123,32 @@ function createEditPointFormTemplate(point) {
 </form>`;
 }
 
-export default class EditPointFormView {
-
+export default class EditPointFormView extends AbstractView {
   #point = null;
-  #element = null;
+  #handleFormSubmit = null;
+  #handleBackToPoint = null;
 
-  constructor ({point}) {
+  constructor ({point, onFormSubmit, onFormClose}) {
+    super();
+
     this.#point = point;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleBackToPoint = onFormClose;
+
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#backToPointHandler);
   }
 
   get template() {
     return createEditPointFormTemplate(this.#point);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #backToPointHandler = () => {
+    this.#handleBackToPoint();
+  };
 }

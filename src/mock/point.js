@@ -1,12 +1,8 @@
 import {MOCK_DESTINATIONS} from './destination.js';
-import {getRandomArrayElement} from '../util.js';
-import { getRandomPositiveInteger } from '../util.js';
+import {getRandomArrayElement} from '../utils/common.js';
 import {TYPES} from '../const.js';
-import { MOCK_OFFERS } from './offers.js';
-
-function getSomeRandomArrayElements (someArray) {
-  return someArray.slice(getRandomPositiveInteger(0, someArray.length - 1), (getRandomPositiveInteger(0, someArray.length)));
-}
+import {MOCK_OFFERS} from './offers.js';
+import { getSomeRandomArrayElements } from '../utils/common.js';
 
 const mockPoints = [
   {
