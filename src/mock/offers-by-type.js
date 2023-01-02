@@ -1,5 +1,5 @@
-import { getRandomArrayElement} from '../util.js';
-import { MOCK_OFFERS } from './offers.js';
+import {getRandomArrayElement} from '../utils/common.js';
+import {MOCK_OFFERS} from './offers.js';
 
 const MOCK_OFFERS_BY_TYPE = [
   {
