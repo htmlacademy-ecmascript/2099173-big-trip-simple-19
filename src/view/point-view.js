@@ -5,7 +5,7 @@ import {humanizeTimeInList} from '../utils/points.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createDestinationNameTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id).name;
+  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
 }
 
 
