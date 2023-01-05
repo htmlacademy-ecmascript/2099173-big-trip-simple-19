@@ -16,4 +16,8 @@ function humanizeDateAndTimeInForm(date) {
   return date ? dayjs(date).format(DATE_AND_TIME_FORMAT) : '';
 }
 
-export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm};
+function isPointFuture(date) {
+  return date && dayjs().isBefore(date, 'D');
+}
+
+export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, isPointFuture};

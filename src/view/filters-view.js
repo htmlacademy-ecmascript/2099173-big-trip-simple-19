@@ -1,17 +1,27 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createFilterControlTemplate() {
+function createFilterItemTemplate(filter, isChecked) {
+
+  const {name} = filter;
+
+  return (
+    `<div class="trip-filters__filter">
+            <input id="filter-${name}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" ${isChecked ? 'checked' : ''} value="${name}">
+            <label class="trip-filters__filter-label" for="filter-everything">${name}</label>
+          </div>`
+  );
+}
+
+function createFilterControlTemplate(filterItems) {
+
+  const filterItemsTemplate = filterItems
+    .map((filter, index) => createFilterItemTemplate(filter, index === 0))
+    .join('');
+
   return `<div class="trip-controls__filters">
             <h2 class="visually-hidden">Filter events</h2>
                 <form class="trip-filters" action="#" method="get">
-                    <div class="trip-filters__filter">
-                        <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything">
-                        <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-                    </div>
-                    <div class="trip-filters__filter">
-                        <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
-                        <label class="trip-filters__filter-label" for="filter-future">Future</label>
-                    </div>
+                    ${filterItemsTemplate}
                     <button class="visually-hidden" type="submit">Accept filter</button>
                 </form>
             </div>`;
@@ -19,7 +29,14 @@ function createFilterControlTemplate() {
 
 export default class FilterControlView extends AbstractView {
 
+  #filters = null;
+
+  constructor({filters}) {
+    super();
+    this.#filters = filters;
+  }
+
   get template() {
-    return createFilterControlTemplate();
+    return createFilterControlTemplate(this.#filters);
   }
 }
