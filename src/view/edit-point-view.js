@@ -18,11 +18,11 @@ function createDestinationListTemplate (destinations) {
 }
 
 function createDestinationNameTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id).name;
+  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
 }
 
 function createDestinationDescriptionTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id).description;
+  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
 }
 
 function createOffersInFormTemplate(checkingOffers, currentType) {
