@@ -2,7 +2,8 @@ import {MOCK_DESTINATIONS} from './destination.js';
 import {getRandomArrayElement} from '../utils/common.js';
 import {TYPES} from '../const.js';
 import {MOCK_OFFERS} from './offers.js';
-import { getSomeRandomArrayElements } from '../utils/common.js';
+import {getSomeRandomArrayElements} from '../utils/common.js';
+import {nanoid} from 'nanoid';
 
 const mockPoints = [
   {
@@ -136,7 +137,10 @@ const mockPoints = [
 ];
 
 function getRandomPoint() {
-  return getRandomArrayElement(mockPoints);
+  return {
+    id: nanoid(),
+    ...getRandomArrayElement(mockPoints)
+  };
 }
 
 export {getRandomPoint};
