@@ -2,6 +2,10 @@ function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
 function getRandomPositiveInteger (a, b) {
 
   const lower = Math.ceil(Math.min(Math.abs(a), Math.abs(b)));
@@ -14,4 +18,4 @@ function getSomeRandomArrayElements (someArray) {
   return someArray.slice(getRandomPositiveInteger(0, someArray.length - 1), (getRandomPositiveInteger(0, someArray.length)));
 }
 
-export {getRandomArrayElement, getRandomPositiveInteger, getSomeRandomArrayElements};
+export {getRandomArrayElement, getRandomPositiveInteger, getSomeRandomArrayElements, updateItem};
