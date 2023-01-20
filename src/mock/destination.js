@@ -46,7 +46,7 @@ const MOCK_DESTINATIONS = [
   {
     'id': 5,
     'description': 'Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus.',
-    'name': 'Lndon',
+    'name': 'London',
     'pictures': [
       {
         'src': 'https://loremflickr.com/248/152?random=555',
