@@ -11,7 +11,7 @@ const mockPoints = [
     'dateFrom': '2021-07-10T22:55:56.845Z',
     'dateTo': '2021-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 0,
+    // 'id': 0,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[2].id,
@@ -26,7 +26,7 @@ const mockPoints = [
     'dateFrom': '2022-07-10T22:55:56.845Z',
     'dateTo': '2022-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 1,
+    // 'id': 1,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
@@ -40,7 +40,7 @@ const mockPoints = [
     'dateFrom': '2023-07-10T22:55:56.845Z',
     'dateTo': '2023-07-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 2,
+    // 'id': 2,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
@@ -55,7 +55,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 3,
+    // 'id': 3,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
@@ -70,7 +70,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 4,
+    // 'id': 4,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[11].id
@@ -83,7 +83,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 5,
+    // 'id': 5,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[0].id,
       MOCK_OFFERS[1].id,
@@ -99,7 +99,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 6,
+    // 'id': 6,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[9].id,
     ]),
@@ -111,7 +111,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 7,
+    // 'id': 7,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[3].id,
       MOCK_OFFERS[4].id,
@@ -128,7 +128,7 @@ const mockPoints = [
     'dateFrom': '2022-12-10T22:55:56.845Z',
     'dateTo': '2023-02-11T11:22:13.375Z',
     'destination': getRandomArrayElement(MOCK_DESTINATIONS).id,
-    'id': 8,
+    // 'id': 8,
     'offers': getSomeRandomArrayElements([
       MOCK_OFFERS[8].id
     ]),

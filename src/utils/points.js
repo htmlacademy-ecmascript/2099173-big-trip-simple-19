@@ -20,4 +20,49 @@ function isPointFuture(date) {
   return date && dayjs().isBefore(date, 'D');
 }
 
-export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, isPointFuture};
+function getWeightForNullDate(dateA, dateB) {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+}
+
+function sortPointsDay(pointA, pointB) {
+  const weight = getWeightForNullDate(pointA.dateFrom, pointB.dateFrom);
+
+  return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+}
+
+// function getWeightForNullPrice(priceA, priceB) {
+//   if (priceA === null && priceB === null) {
+//     return 0;
+//   }
+
+//   if (priceA === null) {
+//     return 1;
+//   }
+
+//   if (priceB === null) {
+//     return -1;
+//   }
+
+//   return null;
+// }
+
+function sortPointsPrice(pointA, pointB) {
+  // const weight = getWeightForNullPrice(pointA.basePrice, pointB.basePrice);
+
+  // return weight ??
+  return pointB.basePrice - pointA.basePrice;
+}
+
+export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, isPointFuture, sortPointsDay, sortPointsPrice};
