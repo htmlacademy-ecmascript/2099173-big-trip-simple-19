@@ -2,7 +2,8 @@ import {TYPES} from '../const.js';
 import {MOCK_DESTINATIONS} from '../mock/destination.js';
 import {humanizeDateAndTimeInForm} from '../utils/points.js';
 import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import {MOCK_OFFERS} from '../mock/offers.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createCheckedTypeTemplate(currentType) {
   return `${
@@ -18,11 +19,19 @@ function createDestinationListTemplate (destinations) {
 }
 
 function createDestinationNameTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
+  if (currentDestination !== null) {
+    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
+  } else {
+    return '';
+  }
 }
 
 function createDestinationDescriptionTemplate (currentDestination) {
-  return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
+  if (currentDestination !== null) {
+    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
+  } else {
+    return '';
+  }
 }
 
 function createOffersInFormTemplate(checkingOffers, currentType) {
@@ -34,8 +43,8 @@ function createOffersInFormTemplate(checkingOffers, currentType) {
     const checked = checkingOffers.includes(offer.id) ? 'checked' : '';
 
     return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${checked}>
-          <label class="event__offer-label" for="event-offer-luggage-1">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${checked} value="${offer.title}">
+          <label class="event__offer-label" for="event-offer-luggage-1" data-offer-title="${offer.title}" data-offer-price="${offer.price}">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
@@ -123,32 +132,94 @@ function createEditPointFormTemplate(point) {
 </form>`;
 }
 
-export default class EditPointFormView extends AbstractView {
-  #point = null;
+export default class EditPointFormView extends AbstractStatefulView {
+
   #handleFormSubmit = null;
   #handleBackToPoint = null;
 
   constructor ({point, onFormSubmit, onFormClose}) {
     super();
 
-    this.#point = point;
+    this._setState(EditPointFormView.parsePointToState(point));
+
     this.#handleFormSubmit = onFormSubmit;
     this.#handleBackToPoint = onFormClose;
 
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#backToPointHandler);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEditPointFormTemplate(this.#point);
+    return createEditPointFormTemplate(this._state);
   }
+
+  reset(point) {
+    this.updateElement(
+      EditPointFormView.parsePointToState(point),
+    );
+  }
+
+  _restoreHandlers() {
+
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#backToPointHandler);
+    const typesValues = this.element.querySelectorAll('.event__type-input');
+    for (let i = 0; i < typesValues.length; i++) {
+      typesValues[i].addEventListener('change', this.#eventTypeCheckboxHandler);
+    }
+    const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
+    for (let i = 0; i < offerCheckboxes.length; i++) {
+      offerCheckboxes[i].addEventListener('change', this.#offerCheckboxHandler);
+    }
+    const destinationInputElement = this.element.querySelector('.event__input--destination');
+    destinationInputElement.addEventListener('change', this.#destinationInputHandler);
+  }
+
+  #offerCheckboxHandler = (evt) => {
+    evt.preventDefault();
+    const clickedOffer = evt.target.value;
+    this.updateElement({
+      offers: MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id
+    });
+  };
+
+  #eventTypeCheckboxHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      offers: [],
+      type: evt.target.value,
+    });
+  };
+
+  #destinationInputHandler = (evt) => {
+    evt.preventDefault();
+    let actualDestinationID = null;
+    MOCK_DESTINATIONS.map((destination) => {
+      if (destination.name === evt.target.value) {
+        actualDestinationID = destination.id;
+      }
+    });
+
+    this.updateElement({
+      destination: actualDestinationID,
+    });
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(EditPointFormView.parseStateToPoint(this._state));
   };
 
   #backToPointHandler = () => {
     this.#handleBackToPoint();
   };
+
+  static parsePointToState(point) {
+    return {...point};
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+
+    return point;
+  }
 }
