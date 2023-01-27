@@ -4,6 +4,11 @@ import {humanizeDateAndTimeInForm} from '../utils/points.js';
 import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
 import {MOCK_OFFERS} from '../mock/offers.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/material_blue.css';
+flatpickr.l10ns.default.firstDayOfWeek = 1;
 
 function createCheckedTypeTemplate(currentType) {
   return `${
@@ -83,7 +88,7 @@ function createEditPointFormTemplate(point) {
       <label class="event__label  event__type-output" for="event-destination-1">
         ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${createDestinationNameTemplate(destination)}" list="destination-list-1">
+      <input class="event__input  event__input--destination" aoutocmplete="off" id="event-destination-1" type="text" name="event-destination" value="${createDestinationNameTemplate(destination)}" list="destination-list-1">
       <datalist id="destination-list-1">
 
         ${createDestinationListTemplate(MOCK_DESTINATIONS)}
@@ -136,6 +141,8 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   #handleFormSubmit = null;
   #handleBackToPoint = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor ({point, onFormSubmit, onFormClose}) {
     super();
@@ -150,6 +157,20 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   get template() {
     return createEditPointFormTemplate(this._state);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 
   reset(point) {
@@ -170,8 +191,11 @@ export default class EditPointFormView extends AbstractStatefulView {
     for (let i = 0; i < offerCheckboxes.length; i++) {
       offerCheckboxes[i].addEventListener('change', this.#offerCheckboxHandler);
     }
-    const destinationInputElement = this.element.querySelector('.event__input--destination');
-    destinationInputElement.addEventListener('change', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationInputHandler);
+
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   }
 
   #offerCheckboxHandler = (evt) => {
@@ -204,6 +228,18 @@ export default class EditPointFormView extends AbstractStatefulView {
     });
   };
 
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditPointFormView.parseStateToPoint(this._state));
@@ -212,6 +248,32 @@ export default class EditPointFormView extends AbstractStatefulView {
   #backToPointHandler = () => {
     this.#handleBackToPoint();
   };
+
+  #setDatepickerFrom() {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'j/m/Y H:i',
+        defaultDate: this._state.dateFrom,
+        utc: true,
+        onClose: this.#dateFromChangeHandler
+      },
+    );
+  }
+
+  #setDatepickerTo() {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'j/m/Y H:i',
+        defaultDate: this._state.dateTo,
+        utc: true,
+        onClose: this.#dateToChangeHandler
+      },
+    );
+  }
 
   static parsePointToState(point) {
     return {...point};

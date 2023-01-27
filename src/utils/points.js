@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+// const utc = require('dayjs/plugin/utc');
+// dayjs.extend(utc);
 
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
@@ -42,26 +44,7 @@ function sortPointsDay(pointA, pointB) {
   return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 }
 
-// function getWeightForNullPrice(priceA, priceB) {
-//   if (priceA === null && priceB === null) {
-//     return 0;
-//   }
-
-//   if (priceA === null) {
-//     return 1;
-//   }
-
-//   if (priceB === null) {
-//     return -1;
-//   }
-
-//   return null;
-// }
-
 function sortPointsPrice(pointA, pointB) {
-  // const weight = getWeightForNullPrice(pointA.basePrice, pointB.basePrice);
-
-  // return weight ??
   return pointB.basePrice - pointA.basePrice;
 }
 
