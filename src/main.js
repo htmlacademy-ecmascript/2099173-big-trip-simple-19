@@ -5,6 +5,7 @@ import FilterControlView from './view/filters-view.js';
 import PointsModel from './model/points-model.js';
 import {generateFilter} from './mock/filter.js';
 
+
 const tripMainElement = document.querySelector('.trip-main');
 const tripControlsElement = document.querySelector('.trip-main__trip-controls');
 const tripEventSectionElement = document.querySelector('.trip-events');
