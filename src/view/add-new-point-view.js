@@ -3,10 +3,17 @@ import {getRandomArrayElement} from '../utils/common.js';
 import {humanizeDateAndTimeInForm} from '../utils/points.js';
 import {MOCK_DESTINATIONS} from '../mock/destination.js';
 import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import {MOCK_OFFERS} from '../mock/offers.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import he from 'he';
+
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/material_blue.css';
+flatpickr.l10ns.default.firstDayOfWeek = 1;
 
 const BLANK_DESTINATION = {
-  'id': 0,
+  'id': '0000000000',
   'description': 'Choose city in current field.',
   'name': 'City',
   'pictures': [
@@ -37,8 +44,8 @@ const BLANK_POINT = {
   'basePrice': '0000',
   'dateFrom': '2001-01-01T00:00:00.001Z',
   'dateTo': '2001-01-01T00:23:59.001Z',
-  'destination': BLANK_DESTINATION,
-  'id': 0,
+  'destination': BLANK_DESTINATION.id,
+  'id': '0000000000',
   'offers': [],
   'type':getRandomArrayElement(TYPES)
 };
@@ -56,8 +63,33 @@ function createCheckedTypeTemplate(currentType) {
   }`;
 }
 
-function createPhotosInFormTemplate(photos) {
-  return photos.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.description}"></img>`).join('');
+function createPhotosInFormTemplate(currentDestination) {
+  if (currentDestination === BLANK_DESTINATION.id){
+    return BLANK_DESTINATION.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('');
+  } else {
+    for (const destination of MOCK_DESTINATIONS) {
+      if (destination.id === currentDestination) {
+        return destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('');
+      }
+    }
+  }
+}
+
+function createDestinationNameTemplate (currentDestination) {
+  if (currentDestination !== null && currentDestination !== BLANK_DESTINATION.id) {
+    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
+  } else {
+    currentDestination = BLANK_DESTINATION.id;
+    return 'City';
+  }
+}
+
+function createDestinationDescriptionTemplate (currentDestination) {
+  if (currentDestination !== null && currentDestination !== BLANK_DESTINATION.id) {
+    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
+  } else {
+    return 'Choose city in current field.';
+  }
 }
 
 function createOffersInFormTemplate(additingOffers) {
@@ -104,7 +136,7 @@ function createAddNewPointFormTemplate(point) {
       <label class="event__label  event__type-output" for="event-destination-1">
       ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(createDestinationNameTemplate(destination))}" list="destination-list-1">
       <datalist id="destination-list-1">
         ${createDestinationListTemplate(MOCK_DESTINATIONS)}
       </datalist>
@@ -123,7 +155,7 @@ function createAddNewPointFormTemplate(point) {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+      <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(basePrice)}">
     </div>
 
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -142,11 +174,11 @@ function createAddNewPointFormTemplate(point) {
 
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${destination.description}</p>
+      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination)}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">
-          ${createPhotosInFormTemplate(destination.pictures)}
+          ${createPhotosInFormTemplate(destination)}
         </div>
       </div>
     </section>
@@ -154,28 +186,165 @@ function createAddNewPointFormTemplate(point) {
 </form>`;
 }
 
-export default class AddNewPointFormView extends AbstractView {
+export default class AddNewPointFormView extends AbstractStatefulView {
 
-  #point = null;
   #handleFormSubmit = null;
+  #handleCancelClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
-  constructor ({point = BLANK_POINT}, onFormSubmit) {
+  constructor ({point = BLANK_POINT, onFormSubmit, onCancelClick}) {
     super();
 
-    this.#point = point;
-    this.#handleFormSubmit = onFormSubmit;
+    this._setState(AddNewPointFormView.parsePointToState(point));
 
-    this.element.addEventListener('submit', this.#handlerFormSubmit);
+
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCancelClick = onCancelClick;
+
+    this._restoreHandlers();
   }
 
   get template() {
-    return createAddNewPointFormTemplate(this.#point);
+    return createAddNewPointFormTemplate(this._state);
   }
 
-  #handlerFormSubmit = (evt) => {
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
+  reset(point) {
+    this.updateElement(
+      AddNewPointFormView.parsePointToState(point),
+    );
+  }
+
+  _restoreHandlers() {
+
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    const typesValues = this.element.querySelectorAll('.event__type-input');
+    for (const typeValue of typesValues) {
+      typeValue.addEventListener('change', this.#eventTypeCheckboxHandler);
+    }
+    const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
+    for (const offerCheckbox of offerCheckboxes) {
+      offerCheckbox.addEventListener('change', this.#offerCheckboxHandler);
+    }
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceInputHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#formCancelClickHandler);
+
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
+  }
+
+  #offerCheckboxHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    const clickedOffer = evt.target.value;
+    this.updateElement({
+      offers: MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id
+    });
   };
+
+  #eventTypeCheckboxHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      offers: [],
+      type: evt.target.value,
+    });
+  };
+
+  #destinationInputHandler = (evt) => {
+    evt.preventDefault();
+    let actualDestinationID = '0000000000';
+    MOCK_DESTINATIONS.map((destination) => {
+      if (destination.name === evt.target.value) {
+        actualDestinationID = destination.id;
+      }
+    });
+
+    this.updateElement({
+      destination: actualDestinationID,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: he.encode(evt.target.value),
+    });
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit(AddNewPointFormView.parseStateToPoint(this._state));
+  };
+
+  #setDatepickerFrom() {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'j/m/Y H:i',
+        defaultDate: this._state.dateFrom,
+        utc: true,
+        onClose: this.#dateFromChangeHandler
+      },
+    );
+  }
+
+  #setDatepickerTo() {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'j/m/Y H:i',
+        defaultDate: this._state.dateTo,
+        utc: true,
+        onClose: this.#dateToChangeHandler
+      },
+    );
+  }
+
+  #formCancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCancelClick(AddNewPointFormView.parseStateToPoint(this._state));
+  };
+
+  static parsePointToState(point) {
+    return {...point};
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+
+    return point;
+  }
 }
 
 export {BLANK_POINT};

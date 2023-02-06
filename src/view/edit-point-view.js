@@ -5,6 +5,7 @@ import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
 import {MOCK_OFFERS} from '../mock/offers.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/material_blue.css';
@@ -49,7 +50,7 @@ function createOffersInFormTemplate(checkingOffers, currentType) {
 
     return `<div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${checked} value="${offer.title}">
-          <label class="event__offer-label" for="event-offer-luggage-1" data-offer-title="${offer.title}" data-offer-price="${offer.price}">
+          <label class="event__offer-label" for="event-offer-luggage-1" data-offer-title="${offer.title}" data-offer-price="${offer.price}" value="${offer.title}">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
@@ -141,16 +142,18 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   #handleFormSubmit = null;
   #handleBackToPoint = null;
+  #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor ({point, onFormSubmit, onFormClose}) {
+  constructor ({point, onFormSubmit, onFormClose, onDeleteClick}) {
     super();
 
     this._setState(EditPointFormView.parsePointToState(point));
 
     this.#handleFormSubmit = onFormSubmit;
     this.#handleBackToPoint = onFormClose;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -184,15 +187,19 @@ export default class EditPointFormView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#backToPointHandler);
     const typesValues = this.element.querySelectorAll('.event__type-input');
-    for (let i = 0; i < typesValues.length; i++) {
-      typesValues[i].addEventListener('change', this.#eventTypeCheckboxHandler);
+    for (const typeValue of typesValues) {
+      typeValue.addEventListener('change', this.#eventTypeCheckboxHandler);
     }
     const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
-    for (let i = 0; i < offerCheckboxes.length; i++) {
-      offerCheckboxes[i].addEventListener('change', this.#offerCheckboxHandler);
+    for (const offerCheckbox of offerCheckboxes) {
+      offerCheckbox.addEventListener('change', this.#offerCheckboxHandler);
     }
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceInputHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#formDeleteClickHandler);
 
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
@@ -225,6 +232,13 @@ export default class EditPointFormView extends AbstractStatefulView {
 
     this.updateElement({
       destination: actualDestinationID,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: he.encode(evt.target.value),
     });
   };
 
@@ -274,6 +288,11 @@ export default class EditPointFormView extends AbstractStatefulView {
       },
     );
   }
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditPointFormView.parseStateToPoint(this._state));
+  };
 
   static parsePointToState(point) {
     return {...point};
