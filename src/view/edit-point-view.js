@@ -2,7 +2,7 @@ import {TYPES} from '../const.js';
 import {MOCK_DESTINATIONS} from '../mock/destination.js';
 import {humanizeDateAndTimeInForm} from '../utils/points.js';
 import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
-import {MOCK_OFFERS} from '../mock/offers.js';
+// import {MOCK_OFFERS} from '../mock/offers.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import he from 'he';
@@ -207,10 +207,10 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   #offerCheckboxHandler = (evt) => {
     evt.preventDefault();
-    const clickedOffer = evt.target.value;
-    this.updateElement({
-      offers: MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id
-    });
+    // const clickedOffer = evt.target.value;
+    // this.updateElement({
+    //   offers: [...MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id]
+    // });
   };
 
   #eventTypeCheckboxHandler = (evt) => {
