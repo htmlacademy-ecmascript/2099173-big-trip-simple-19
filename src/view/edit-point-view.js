@@ -1,10 +1,8 @@
 import {TYPES} from '../const.js';
-import {MOCK_DESTINATIONS} from '../mock/destination.js';
 import {humanizeDateAndTimeInForm} from '../utils/points.js';
-import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
-import {MOCK_OFFERS} from '../mock/offers.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/material_blue.css';
@@ -19,37 +17,37 @@ function createCheckedTypeTemplate(currentType) {
   }`;
 }
 
-function createDestinationListTemplate (destinations) {
-  return destinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
+function createDestinationListTemplate (allDestinations) {
+  return allDestinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
 }
 
-function createDestinationNameTemplate (currentDestination) {
+function createDestinationNameTemplate (currentDestination, allDestinations) {
   if (currentDestination !== null) {
-    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
+    return allDestinations.find(({id}) => currentDestination === id)?.name;
   } else {
     return '';
   }
 }
 
-function createDestinationDescriptionTemplate (currentDestination) {
+function createDestinationDescriptionTemplate (currentDestination, allDeatinations) {
   if (currentDestination !== null) {
-    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
+    return allDeatinations.find(({id}) => currentDestination === id)?.description;
   } else {
     return '';
   }
 }
 
-function createOffersInFormTemplate(checkingOffers, currentType) {
+function createOffersInFormTemplate(checkingOffers, currentType, allOffers) {
 
-  const pointTypeOffers = MOCK_OFFERS_BY_TYPE.find((offer) => offer.type === currentType);
+  const pointTypeOffers = allOffers.find(({type}) => currentType === type);
 
   return pointTypeOffers.offers.map((offer) => {
 
     const checked = checkingOffers.includes(offer.id) ? 'checked' : '';
 
     return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${checked} value="${offer.title}">
-          <label class="event__offer-label" for="event-offer-luggage-1" data-offer-title="${offer.title}" data-offer-price="${offer.price}">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-luggage" ${checked} value="${offer.title}">
+          <label class="event__offer-label" for="event-offer-${offer.id}" data-offer-title="${offer.title}" data-offer-price="${offer.price}" value="${offer.title}">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
@@ -57,7 +55,7 @@ function createOffersInFormTemplate(checkingOffers, currentType) {
         </div>`;}).join('');
 }
 
-function createEditPointFormTemplate(point) {
+function createEditPointFormTemplate(point, allDestinations, allOffers) {
 
   const {type, destination, dateFrom, dateTo, basePrice, offers} = point;
 
@@ -88,10 +86,10 @@ function createEditPointFormTemplate(point) {
       <label class="event__label  event__type-output" for="event-destination-1">
         ${type}
       </label>
-      <input class="event__input  event__input--destination" aoutocmplete="off" id="event-destination-1" type="text" name="event-destination" value="${createDestinationNameTemplate(destination)}" list="destination-list-1">
+      <input class="event__input  event__input--destination" aoutocmplete="off" id="event-destination-1" type="text" name="event-destination" value="${createDestinationNameTemplate(destination, allDestinations)}" list="destination-list-1">
       <datalist id="destination-list-1">
 
-        ${createDestinationListTemplate(MOCK_DESTINATIONS)}
+        ${createDestinationListTemplate(allDestinations)}
 
       </datalist>
     </div>
@@ -124,14 +122,14 @@ function createEditPointFormTemplate(point) {
 
       <div class="event__available-offers">
 
-      ${createOffersInFormTemplate(offers, type)}
+      ${createOffersInFormTemplate(offers, type, allOffers)}
 
       </div>
     </section>
 
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination)}</p>
+      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination, allDestinations)}</p>
     </section>
   </section>
 </form>`;
@@ -141,22 +139,29 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   #handleFormSubmit = null;
   #handleBackToPoint = null;
+  #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #destinations = null;
+  #offers = null;
 
-  constructor ({point, onFormSubmit, onFormClose}) {
+  constructor ({point, destinations, offers, onFormSubmit, onFormClose, onDeleteClick}) {
     super();
 
     this._setState(EditPointFormView.parsePointToState(point));
 
+    this.#destinations = destinations;
+    this.#offers = offers;
+
     this.#handleFormSubmit = onFormSubmit;
     this.#handleBackToPoint = onFormClose;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEditPointFormTemplate(this._state);
+    return createEditPointFormTemplate(this._state, this.#destinations, this.#offers);
   }
 
   removeElement() {
@@ -184,15 +189,19 @@ export default class EditPointFormView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#backToPointHandler);
     const typesValues = this.element.querySelectorAll('.event__type-input');
-    for (let i = 0; i < typesValues.length; i++) {
-      typesValues[i].addEventListener('change', this.#eventTypeCheckboxHandler);
+    for (const typeValue of typesValues) {
+      typeValue.addEventListener('change', this.#eventTypeCheckboxHandler);
     }
     const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
-    for (let i = 0; i < offerCheckboxes.length; i++) {
-      offerCheckboxes[i].addEventListener('change', this.#offerCheckboxHandler);
+    for (const offerCheckbox of offerCheckboxes) {
+      offerCheckbox.addEventListener('change', this.#offerCheckboxHandler);
     }
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceInputHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#formDeleteClickHandler);
 
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
@@ -200,9 +209,17 @@ export default class EditPointFormView extends AbstractStatefulView {
 
   #offerCheckboxHandler = (evt) => {
     evt.preventDefault();
-    const clickedOffer = evt.target.value;
+    const checkedOffers = [];
+    for (const checkedOffer of this._state.offers) {
+      checkedOffers.push(checkedOffer);
+    }
+    if (evt.target.checked === true) {
+      checkedOffers.push(this.#offers.find(({type}) => this._state.type === type)?.offers.find(({title}) => evt.target.value === title)?.id);
+    } else {
+      checkedOffers.splice(checkedOffers.indexOf(this.#offers.find(({type}) => this._state.type === type)?.offers.find(({title}) => evt.target.value === title)?.id), 1);
+    }
     this.updateElement({
-      offers: MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id
+      offers: checkedOffers
     });
   };
 
@@ -217,7 +234,7 @@ export default class EditPointFormView extends AbstractStatefulView {
   #destinationInputHandler = (evt) => {
     evt.preventDefault();
     let actualDestinationID = null;
-    MOCK_DESTINATIONS.map((destination) => {
+    this.#destinations.map((destination) => {
       if (destination.name === evt.target.value) {
         actualDestinationID = destination.id;
       }
@@ -225,6 +242,13 @@ export default class EditPointFormView extends AbstractStatefulView {
 
     this.updateElement({
       destination: actualDestinationID,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: he.encode(evt.target.value),
     });
   };
 
@@ -274,6 +298,11 @@ export default class EditPointFormView extends AbstractStatefulView {
       },
     );
   }
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditPointFormView.parseStateToPoint(this._state));
+  };
 
   static parsePointToState(point) {
     return {...point};

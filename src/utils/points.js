@@ -48,4 +48,8 @@ function sortPointsPrice(pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
 }
 
-export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, isPointFuture, sortPointsDay, sortPointsPrice};
+function isDatesEqual(dateA, dateB) {
+  return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
+}
+
+export {humanizeDateInList, humanizeTimeInList, humanizeDateAndTimeInForm, isPointFuture, sortPointsDay, sortPointsPrice, isDatesEqual};
