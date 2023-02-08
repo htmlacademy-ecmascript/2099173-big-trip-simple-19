@@ -6,10 +6,10 @@ const NoPointsTextType = {
   [FilterTypes.FUTURE]: 'There are no future events now',
 };
 
-function createNoPointTemplate() {
+function createNoPointTemplate(currentFilter) {
   return (
     `<p class="trip-events__msg">
-    ${NoPointsTextType}
+    ${NoPointsTextType[currentFilter]}
     </p>`
   );
 }

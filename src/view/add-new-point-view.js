@@ -1,9 +1,6 @@
 import {TYPES} from '../const.js';
 import {getRandomArrayElement} from '../utils/common.js';
 import {humanizeDateAndTimeInForm} from '../utils/points.js';
-import {MOCK_DESTINATIONS} from '../mock/destination.js';
-import {MOCK_OFFERS_BY_TYPE} from '../mock/offers-by-type.js';
-import {MOCK_OFFERS} from '../mock/offers.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import he from 'he';
@@ -50,8 +47,8 @@ const BLANK_POINT = {
   'type':getRandomArrayElement(TYPES)
 };
 
-function createDestinationListTemplate (destinations) {
-  return destinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
+function createDestinationListTemplate (allDeatinations) {
+  return allDeatinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
 }
 
 function createCheckedTypeTemplate(currentType) {
@@ -63,11 +60,11 @@ function createCheckedTypeTemplate(currentType) {
   }`;
 }
 
-function createPhotosInFormTemplate(currentDestination) {
+function createPhotosInFormTemplate(currentDestination, allDeatinations) {
   if (currentDestination === BLANK_DESTINATION.id){
     return BLANK_DESTINATION.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('');
   } else {
-    for (const destination of MOCK_DESTINATIONS) {
+    for (const destination of allDeatinations) {
       if (destination.id === currentDestination) {
         return destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('');
       }
@@ -75,43 +72,50 @@ function createPhotosInFormTemplate(currentDestination) {
   }
 }
 
-function createDestinationNameTemplate (currentDestination) {
+function createDestinationNameTemplate (currentDestination, allDestinations) {
   if (currentDestination !== null && currentDestination !== BLANK_DESTINATION.id) {
-    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.name;
+    return allDestinations.find(({id}) => currentDestination === id)?.name;
   } else {
     currentDestination = BLANK_DESTINATION.id;
     return 'City';
   }
 }
 
-function createDestinationDescriptionTemplate (currentDestination) {
+function createDestinationDescriptionTemplate (currentDestination, allDeatinations) {
   if (currentDestination !== null && currentDestination !== BLANK_DESTINATION.id) {
-    return MOCK_DESTINATIONS.find(({id}) => currentDestination === id)?.description;
+    return allDeatinations.find(({id}) => currentDestination === id)?.description;
   } else {
     return 'Choose city in current field.';
   }
 }
 
-function createOffersInFormTemplate(additingOffers) {
-  return additingOffers.offers.map((offer) => `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage">
-          <label class="event__offer-label" for="event-offer-luggage-1">
+function createOffersInFormTemplate(checkingOffers, currentType, allOffers) {
+
+  const pointTypeOffers = allOffers.find(({type}) => currentType === type);
+
+  return pointTypeOffers.offers.map((offer) => {
+
+    const checked = checkingOffers.includes(offer.id) ? 'checked' : '';
+
+    return `<div class="event__offer-selector">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-luggage" ${checked} value="${offer.title}">
+          <label class="event__offer-label" for="event-offer-${offer.id}" data-offer-title="${offer.title}" data-offer-price="${offer.price}" value="${offer.title}">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
           </label>
-        </div>`).join('');
+        </div>`;}).join('');
 }
 
-function createAddNewPointFormTemplate(point) {
+function createAddNewPointFormTemplate(point, allDestinations, allOffers) {
 
-  const {type, destination, dateFrom, dateTo, basePrice} = point;
+  const {type, destination, dateFrom, dateTo, basePrice, offers} = point;
 
   const dateFromInForm = humanizeDateAndTimeInForm(dateFrom);
 
   const dateToInForm = humanizeDateAndTimeInForm(dateTo);
 
-  const pointTypeOffers = MOCK_OFFERS_BY_TYPE.find((offer) => offer.type === type);
+  // const pointTypeOffers = allOffers.find((offer) => offer.type === type);
 
   return `<form class="event event--edit" action="#" method="post">
   <header class="event__header">
@@ -136,9 +140,9 @@ function createAddNewPointFormTemplate(point) {
       <label class="event__label  event__type-output" for="event-destination-1">
       ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(createDestinationNameTemplate(destination))}" list="destination-list-1">
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(createDestinationNameTemplate(destination, allDestinations))}" list="destination-list-1">
       <datalist id="destination-list-1">
-        ${createDestinationListTemplate(MOCK_DESTINATIONS)}
+        ${createDestinationListTemplate(allDestinations)}
       </datalist>
     </div>
 
@@ -167,18 +171,18 @@ function createAddNewPointFormTemplate(point) {
 
       <div class="event__available-offers">
         
-      ${createOffersInFormTemplate(pointTypeOffers)}
+      ${createOffersInFormTemplate(offers, type, allOffers)}
 
       </div>
     </section>
 
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination)}</p>
+      <p class="event__destination-description">${createDestinationDescriptionTemplate(destination, allDestinations)}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">
-          ${createPhotosInFormTemplate(destination)}
+          ${createPhotosInFormTemplate(destination, allDestinations)}
         </div>
       </div>
     </section>
@@ -192,12 +196,16 @@ export default class AddNewPointFormView extends AbstractStatefulView {
   #handleCancelClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #destinations = null;
+  #offers = null;
 
-  constructor ({point = BLANK_POINT, onFormSubmit, onCancelClick}) {
+  constructor ({point = BLANK_POINT, destinations, offers, onFormSubmit, onCancelClick}) {
     super();
 
     this._setState(AddNewPointFormView.parsePointToState(point));
 
+    this.#destinations = destinations;
+    this.#offers = offers;
 
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCancelClick = onCancelClick;
@@ -206,7 +214,7 @@ export default class AddNewPointFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createAddNewPointFormTemplate(this._state);
+    return createAddNewPointFormTemplate(this._state, this.#destinations, this.#offers);
   }
 
   removeElement() {
@@ -253,9 +261,17 @@ export default class AddNewPointFormView extends AbstractStatefulView {
 
   #offerCheckboxHandler = (evt) => {
     evt.preventDefault();
-    const clickedOffer = evt.target.value;
+    const checkedOffers = [];
+    for (const checkedOffer of this._state.offers) {
+      checkedOffers.push(checkedOffer);
+    }
+    if (evt.target.checked === true) {
+      checkedOffers.push(this.#offers.find(({type}) => this._state.type === type)?.offers.find(({title}) => evt.target.value === title)?.id);
+    } else {
+      checkedOffers.splice(checkedOffers.indexOf(this.#offers.find(({type}) => this._state.type === type)?.offers.find(({title}) => evt.target.value === title)?.id), 1);
+    }
     this.updateElement({
-      offers: MOCK_OFFERS.find((offer) => offer.title === clickedOffer)?.id
+      offers: checkedOffers
     });
   };
 
@@ -270,7 +286,7 @@ export default class AddNewPointFormView extends AbstractStatefulView {
   #destinationInputHandler = (evt) => {
     evt.preventDefault();
     let actualDestinationID = '0000000000';
-    MOCK_DESTINATIONS.map((destination) => {
+    this.#destinations.map((destination) => {
       if (destination.name === evt.target.value) {
         actualDestinationID = destination.id;
       }
