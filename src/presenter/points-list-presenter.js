@@ -199,7 +199,7 @@ export default class PointsListPresenter {
 
     const points = this.points;
 
-    if (this.#pointsModel.points.length === 0) {
+    if (points.length === 0) {
       this.#renderNoPopints();
       return;
     }

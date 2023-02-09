@@ -4,6 +4,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import he from 'he';
 
+
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/material_blue.css';
 flatpickr.l10ns.default.firstDayOfWeek = 1;
@@ -256,12 +257,25 @@ export default class EditPointFormView extends AbstractStatefulView {
     this.updateElement({
       dateFrom: userDate,
     });
+    const currentDateTo = this._state.dateTo;
+    if (this._state.dateTo.toISOString() < this._state.dateFrom.toISOString()) {
+      this.updateElement({
+        dateFrom: currentDateTo,
+      });
+    }
   };
 
   #dateToChangeHandler = ([userDate]) => {
+
     this.updateElement({
       dateTo: userDate,
     });
+    const currentDateFrom = this._state.dateFrom;
+    if (this._state.dateFrom.toISOString() > this._state.dateTo.toISOString()) {
+      this.updateElement({
+        dateTo: currentDateFrom,
+      });
+    }
   };
 
   #formSubmitHandler = (evt) => {

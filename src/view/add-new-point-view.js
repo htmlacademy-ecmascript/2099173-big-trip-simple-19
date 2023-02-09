@@ -39,8 +39,8 @@ const BLANK_DESTINATION = {
 
 const BLANK_POINT = {
   'basePrice': '0000',
-  'dateFrom': '2001-01-01T00:00:00.001Z',
-  'dateTo': '2001-01-01T00:23:59.001Z',
+  'dateFrom': '2023-01-01T00:00:00.001Z',
+  'dateTo': '2023-12-31T00:00:00.001Z',
   'destination': BLANK_DESTINATION.id,
   'id': '0000000000',
   'offers': [],
@@ -308,12 +308,25 @@ export default class AddNewPointFormView extends AbstractStatefulView {
     this.updateElement({
       dateFrom: userDate,
     });
+    const currentDateTo = this._state.dateTo;
+    if (this._state.dateTo.toISOString() < this._state.dateFrom.toISOString()) {
+      this.updateElement({
+        dateFrom: currentDateTo,
+      });
+    }
   };
 
   #dateToChangeHandler = ([userDate]) => {
+
     this.updateElement({
       dateTo: userDate,
     });
+    const currentDateFrom = this._state.dateFrom;
+    if (this._state.dateFrom.toISOString() > this._state.dateTo.toISOString()) {
+      this.updateElement({
+        dateTo: currentDateFrom,
+      });
+    }
   };
 
   #formSubmitHandler = (evt) => {
