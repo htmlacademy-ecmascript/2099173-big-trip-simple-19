@@ -29,7 +29,7 @@ export default class PointApiService extends ApiService {
     const adaptedPoint = {...point,
       'date_from': point.dateFrom instanceof Date ? point.dateFrom.toISOString() : null,
       'date_to': point.dateTo instanceof Date ? point.dateTo.toISOString() : null,
-      'base_price': point.basePrice,
+      'base_price': parseInt(point.basePrice, 10),
     };
 
     delete adaptedPoint.dateFrom;
