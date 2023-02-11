@@ -92,6 +92,7 @@ export default class PointsListPresenter {
     this.#pointPresenter.forEach((presenter) => presenter.resetView());
   };
 
+
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
     switch (actionType) {
