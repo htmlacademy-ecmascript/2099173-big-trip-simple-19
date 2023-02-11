@@ -46,7 +46,7 @@ export default class PointsListPresenter {
       offers: this.#pointsModel.offers,
       pointListContainer: this.#pointListComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: onNewPointDestroy
+      onDestroy: onNewPointDestroy,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
@@ -91,10 +91,6 @@ export default class PointsListPresenter {
     this.#newPointPresenter.destroy();
     this.#pointPresenter.forEach((presenter) => presenter.resetView());
   };
-
-  // #handlePointChange = (updatedPoint) => {
-  //   this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
-  // };
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
